@@ -17,7 +17,9 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Add secrets from secrets file to build config
-        buildConfigField("String", "maps_api_key", secrets['maps_api_key'])
+        // buildConfigField("String", "maps_api_key", secrets['maps_api_key'])
+        // Add secret as resource string (this was adapted from https://developers.google.com/maps/documentation/android-sdk/map-with-marker)
+        resValue "string", "maps_api_key", secrets['maps_api_key']
     }
     buildTypes {
         release {
