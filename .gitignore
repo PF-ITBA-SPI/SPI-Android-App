@@ -2,6 +2,9 @@
 *.apk
 *.ap_
 
+# Secrets
+secrets.properties
+
 #Mac Files
 *.DS_Store
 

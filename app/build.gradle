@@ -1,8 +1,11 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+
+// Add secrets from secrets file, thanks to https://medium.com/@geocohn/keeping-your-android-projects-secrets-secret-393b8855765d
+def secretsFile = rootProject.file("secrets.properties")
+def secrets = new Properties()
+secrets.load(new FileInputStream(secretsFile)) // If this fails, you're missing the secrets.properties file in project root, ask someone else for the file (NEVER EVER COMMIT IT)
 
 android {
     compileSdkVersion 27
@@ -13,6 +16,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // Add secrets from secrets file to build config
+        buildConfigField("String", "maps_api_key", secrets['maps_api_key'])
     }
     buildTypes {
         release {
