@@ -71,4 +71,7 @@ dependencies {
 
     //Pretty Logger
     implementation 'com.orhanobut:logger:2.1.1'
+
+    // Google Maps
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
 }
