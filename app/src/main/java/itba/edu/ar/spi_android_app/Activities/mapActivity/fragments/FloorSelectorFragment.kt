@@ -1,14 +1,20 @@
-package itba.edu.ar.spi_android_app
+package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import com.google.android.gms.plus.PlusOneButton
+import android.widget.Button
+import android.widget.LinearLayout
+import itba.edu.ar.spi_android_app.Activities.mapActivity.MapViewModel
+import itba.edu.ar.spi_android_app.R
+import itba.edu.ar.spi_android_app.utils.TAG
 
 /**
  * A fragment with a Google +1 button.
@@ -19,14 +25,14 @@ import com.google.android.gms.plus.PlusOneButton
  * create an instance of this fragment.
  */
 class FloorSelectorFragment : Fragment() {
-    // The URL to +1.  Must be a valid URL.
-    private val PLUS_ONE_URL = "http://developer.android.com"
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
     private var mParam2: String? = null
-    private var mPlusOneButton: PlusOneButton? = null
-
+    private lateinit var layout: LinearLayout
     private var mListener: OnFragmentInteractionListener? = null
+    private lateinit var model: MapViewModel
+    private var buttons: MutableCollection<Button> = mutableListOf()
+    private var selectedButton: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,24 +40,65 @@ class FloorSelectorFragment : Fragment() {
             mParam1 = arguments!!.getString(ARG_PARAM1)
             mParam2 = arguments!!.getString(ARG_PARAM2)
         }
+        model = ViewModelProviders.of(this).get(MapViewModel::class.java)
+//        activity?.run {
+//            ViewModelProviders.of(this).get(MapViewModel::class.java)
+//        } ?: throw Exception("Invalid Activity")
+        model.floorNumbers.value = mutableListOf(1, 2, 3) // TODO get this from current building
+        model.floorNumbers.observe(this, Observer<List<Int>>{ floors ->
+            // Update UI
+            this.clear()
+            this.setFloors(floors!!)
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_floor_selector, container, false)
-
-        //Find the +1 button
-        mPlusOneButton = view.findViewById<View>(R.id.plus_one_button) as PlusOneButton
-
+        layout = view.findViewById(R.id.layout)
+//        layout.addView()
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    /**
+     * Creates a floor selector button, with style and a click handler that updates the fragment's
+     * and viewModel's selected floor number.
+     */
+    private fun button(floorNumber: Int): Button {
+        val result = Button(this.context)
+        result.width = 50
+        result.height = 50
+        result.tag = floorNumber // Find buttons by tag, not ID
+        result.text = floorNumber.toString()
+        result.setOnClickListener { clickedView ->
+            selectedButton?.isPressed = false
+            selectedButton = clickedView as Button
+            selectedButton!!.isPressed = true
+            model.selectedFloorNumber.value = floorNumber
+            Log.d(TAG, "Clicked on floor #$floorNumber! From FloorSelectorFragment")
+        }
+        return result
+    }
 
-        // Refresh the state of the +1 button each time the activity receives focus.
-        mPlusOneButton!!.initialize(PLUS_ONE_URL, PLUS_ONE_REQUEST_CODE)
+    /**
+     * Removes all floor buttons and clears buttons collection.
+     */
+    private fun clear() {
+        layout.removeAllViews()
+        // TODO clear button click handlers / live data observers?
+        buttons.clear()
+    }
+
+    private fun setFloors(floors: List<Int>) {
+        floors
+                .sorted()
+                .reversed() // Vertical linear layout goes from top to bottom, so first button has to be the one with the highest floor number
+                .forEach { floor ->
+            val newButton = button(floor)
+            buttons.add(newButton)
+            layout.addView(newButton)
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
