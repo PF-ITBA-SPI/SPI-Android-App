@@ -57,7 +57,6 @@ class FloorSelectorFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_floor_selector, container, false)
         layout = view.findViewById(R.id.layout)
-//        layout.addView()
         return view
     }
 
