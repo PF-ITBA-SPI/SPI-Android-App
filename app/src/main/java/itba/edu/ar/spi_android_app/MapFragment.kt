@@ -45,9 +45,9 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private val ITBA = LatLng(-34.603500, -58.367791)
     private var map: GoogleMap? = null
 
-    private var mapFragment: SupportMapFragment? = null
-    private var floorSelectorFragment: FloorSelectorFragment? = null
-    private var statusIndicatorFragment: StatusIndicatorFragment? = null
+    private lateinit var mapFragment: SupportMapFragment
+    private lateinit var floorSelectorFragment: FloorSelectorFragment
+    private lateinit var statusIndicatorFragment: StatusIndicatorFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         // Inflate the layout for this mapFragment
         val result = inflater.inflate(R.layout.fragment_map, container, false)
         mapFragment = childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
-        mapFragment!!.getMapAsync(this)
+        mapFragment.getMapAsync(this)
         floorSelectorFragment = childFragmentManager.findFragmentById(R.id.floorSelectorFragment) as FloorSelectorFragment
         statusIndicatorFragment = childFragmentManager.findFragmentById(R.id.statusIndicatorFragment) as StatusIndicatorFragment
         return result
