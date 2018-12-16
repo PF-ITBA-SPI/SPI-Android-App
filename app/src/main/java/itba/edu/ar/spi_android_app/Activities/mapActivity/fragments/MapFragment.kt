@@ -2,6 +2,8 @@ package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -18,6 +20,7 @@ import android.widget.Toast
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.orhanobut.logger.Logger
+import itba.edu.ar.spi_android_app.Activities.mapActivity.MapViewModel
 import itba.edu.ar.spi_android_app.R
 import itba.edu.ar.spi_android_app.utils.TAG
 
@@ -45,10 +48,14 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private var listener: OnFragmentInteractionListener? = null
     private val ITBA = LatLng(-34.603500, -58.367791)
     private var map: GoogleMap? = null
+    private lateinit var model: MapViewModel
+
 
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var floorSelectorFragment: FloorSelectorFragment
     private lateinit var statusIndicatorFragment: StatusIndicatorFragment
+
+    private lateinit var groundOverlay: GroundOverlay // TODO make this a map of floor number to GroundOverlay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +63,20 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        model = activity?.run {
+            ViewModelProviders.of(this).get(MapViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+        model.selectedFloorNumber.observe(this, Observer<Int>{ floorNumber ->
+            Log.d(TAG, "Selected floor #$floorNumber! From MapFragment.")
+            Log.d(TAG, "Removing ground overlay...")
+            groundOverlay.remove()
+            Log.d(TAG, "Adding new ground overlay...")
+            groundOverlay = map!!.addGroundOverlay(GroundOverlayOptions()
+                    .position(ITBA, 90f)
+                    .image(BitmapDescriptorFactory.fromResource(R.drawable.test))
+            )
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -107,7 +128,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
 //                }
 //            }, 20 * 1000)
 
-            map.addGroundOverlay(GroundOverlayOptions()
+            groundOverlay = map.addGroundOverlay(GroundOverlayOptions()
                     .position(ITBA, 100f)
                     .image(BitmapDescriptorFactory.fromResource(R.drawable.test))
 //                    .anchor(0f, 0f)

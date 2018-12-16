@@ -40,10 +40,10 @@ class FloorSelectorFragment : Fragment() {
             mParam1 = arguments!!.getString(ARG_PARAM1)
             mParam2 = arguments!!.getString(ARG_PARAM2)
         }
-        model = ViewModelProviders.of(this).get(MapViewModel::class.java)
-//        activity?.run {
-//            ViewModelProviders.of(this).get(MapViewModel::class.java)
-//        } ?: throw Exception("Invalid Activity")
+
+        model = activity?.run {
+            ViewModelProviders.of(this).get(MapViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
         model.floorNumbers.value = mutableListOf(1, 2, 3) // TODO get this from current building
         model.floorNumbers.observe(this, Observer<List<Int>>{ floors ->
             // Update UI
