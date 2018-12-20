@@ -73,8 +73,8 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
             groundOverlay.remove()
             Log.d(TAG, "Adding new ground overlay...")
             groundOverlay = map!!.addGroundOverlay(GroundOverlayOptions()
-                    .position(ITBA, 90f)
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.test))
+                    .position(ITBA, 100f)
+                    .image(BitmapDescriptorFactory.fromResource(floorPlanResourceId(floorNumber!!)))
             )
         })
     }
@@ -130,7 +130,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
 
             groundOverlay = map.addGroundOverlay(GroundOverlayOptions()
                     .position(ITBA, 100f)
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.test))
+                    .image(BitmapDescriptorFactory.fromResource(floorPlanResourceId(1)))
 //                    .anchor(0f, 0f)
             )
         } else {
@@ -228,5 +228,17 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false
+    }
+
+    /**
+     * Gets drawable resource ID given a floor number.
+     */
+    private fun floorPlanResourceId(floorNum: Int): Int {
+        return when (floorNum) {
+            1 -> R.drawable.plano1
+            2 -> R.drawable.plano2
+            3 -> R.drawable.plano3
+            else -> -1
+        }
     }
 }
