@@ -16,11 +16,15 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
+ * Status indicators drawn over the map for different situations, such as:
+ * - Phone is offline (or server is otherwise unreachable)
+ * - Unrecognized location
+ *
+ *
+ * - Activities that contain this fragment must implement the
  * [StatusIndicatorFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [StatusIndicatorFragment.newInstance] factory method to
+ * - Use the [StatusIndicatorFragment.newInstance] factory method to
  * create an instance of this fragment.
  *
  */
