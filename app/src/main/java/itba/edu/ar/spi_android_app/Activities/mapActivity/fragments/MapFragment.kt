@@ -31,11 +31,13 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
- * A simple [Fragment] subclass.
- * Activities that contain this mapFragment must implement the
+ * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
+ * manually change floors, and a [StatusIndicatorFragment].
+ *
+ * - Activities that contain this mapFragment must implement the
  * [MapFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [MapFragment.newInstance] factory method to
+ * - Use the [MapFragment.newInstance] factory method to
  * create an instance of this mapFragment.
  *
  */
