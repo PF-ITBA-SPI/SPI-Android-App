@@ -19,7 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/mapFragment"
         android:layout_alignTop="@id/mapFragment"
-        android:layout_marginEnd="50dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="60dp"
         />
 
     <fragment
