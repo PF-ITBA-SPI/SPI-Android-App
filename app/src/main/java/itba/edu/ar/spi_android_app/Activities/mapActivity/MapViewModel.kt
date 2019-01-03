@@ -10,4 +10,6 @@ import android.arch.lifecycle.ViewModel
 class MapViewModel : ViewModel() {
     var floorNumbers = MutableLiveData<List<Int>>()
     var selectedFloorNumber = MutableLiveData<Int>()
+    var isOffline = MutableLiveData<Boolean>().apply { value = false }
+    var isLocationUnknown = MutableLiveData<Boolean>().apply { value = false }
 }

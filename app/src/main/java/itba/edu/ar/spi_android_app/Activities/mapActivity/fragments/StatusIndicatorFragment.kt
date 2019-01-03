@@ -1,13 +1,19 @@
 package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import itba.edu.ar.spi_android_app.Activities.mapActivity.MapViewModel
 import itba.edu.ar.spi_android_app.R
+import itba.edu.ar.spi_android_app.utils.TAG
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -29,23 +35,34 @@ private const val ARG_PARAM2 = "param2"
  *
  */
 class StatusIndicatorFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
+    private var offlineIcon: ImageView? = null
+    private var unknownLocationIcon: ImageView? = null
+    private lateinit var model: MapViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
+        model = activity?.run {
+            ViewModelProviders.of(this).get(MapViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+        model.isOffline.observe(this, Observer<Boolean>{ isOffline ->
+            Log.d(TAG, "Offline status changed to $isOffline")
+            offlineIcon?.visibility = if (isOffline!!) android.view.View.VISIBLE else android.view.View.INVISIBLE
+        })
+        model.isLocationUnknown.observe(this, Observer<Boolean>{ isLocationUnknown ->
+            Log.d(TAG, "Unknown location status changed to $isLocationUnknown")
+            unknownLocationIcon?.visibility = if (isLocationUnknown!!) android.view.View.VISIBLE else android.view.View.INVISIBLE
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_status_indicator, container, false)
+        val result = inflater.inflate(R.layout.fragment_status_indicator, container, false)
+        offlineIcon = result.findViewById(R.id.offline_icon)
+        unknownLocationIcon = result.findViewById(R.id.unknown_location_icon)
+        return result
     }
 
     // TODO: Rename method, update argument and hook method into UI event
