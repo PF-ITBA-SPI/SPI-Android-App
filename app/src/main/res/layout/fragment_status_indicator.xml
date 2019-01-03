@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:visibility="visible"
-        android:src="@drawable/ic_baseline_cloud_off_24px"
+        android:visibility="invisible"
+        android:src="@drawable/ic_offline_red_24dp"
         android:contentDescription="@string/offline_indicator_icon" />
 
     <ImageView
