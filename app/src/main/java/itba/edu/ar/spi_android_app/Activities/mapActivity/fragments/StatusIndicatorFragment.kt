@@ -2,7 +2,12 @@ package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager.CONNECTIVITY_ACTION
+import android.net.ConnectivityManager.EXTRA_NO_CONNECTIVITY
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -47,13 +52,14 @@ class StatusIndicatorFragment : Fragment() {
             ViewModelProviders.of(this).get(MapViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
         model.isOffline.observe(this, Observer<Boolean>{ isOffline ->
-            Log.d(TAG, "Offline status changed to $isOffline")
             offlineIcon?.visibility = if (isOffline!!) android.view.View.VISIBLE else android.view.View.INVISIBLE
         })
         model.isLocationUnknown.observe(this, Observer<Boolean>{ isLocationUnknown ->
             Log.d(TAG, "Unknown location status changed to $isLocationUnknown")
             unknownLocationIcon?.visibility = if (isLocationUnknown!!) android.view.View.VISIBLE else android.view.View.INVISIBLE
         })
+        // Listen to connectivity changes
+        context!!.registerReceiver(ConnectivityChangeBroadcastReceiver(), IntentFilter(CONNECTIVITY_ACTION))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -82,6 +88,22 @@ class StatusIndicatorFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         listener = null
+    }
+
+    /**
+     * Broadcast receiver that reacts to connectivity changes and updates [MapViewModel.isOffline]
+     * appropriately.
+     *
+     * See also [Android doc on monitoring network changes][https://developer.android.com/training/monitoring-device-state/connectivity-monitoring#MonitorChanges],
+     * [Android doc on received intent][https://developer.android.com/reference/android/net/ConnectivityManager#CONNECTIVITY_ACTION]
+     */
+    private inner class ConnectivityChangeBroadcastReceiver: BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val isOffline =  intent?.getBooleanExtra(EXTRA_NO_CONNECTIVITY, false) == true
+            model.isOffline.value = isOffline
+            Log.i(TAG, "Connectivity state changed. Offline? $isOffline")
+        }
     }
 
     /**
