@@ -1,7 +1,9 @@
-package itba.edu.ar.spi_android_app
+package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -18,6 +20,8 @@ import android.widget.Toast
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.orhanobut.logger.Logger
+import itba.edu.ar.spi_android_app.Activities.mapActivity.MapViewModel
+import itba.edu.ar.spi_android_app.R
 import itba.edu.ar.spi_android_app.utils.TAG
 
 
@@ -27,11 +31,13 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
- * A simple [Fragment] subclass.
- * Activities that contain this mapFragment must implement the
+ * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
+ * manually change floors, and a [StatusIndicatorFragment].
+ *
+ * - Activities that contain this mapFragment must implement the
  * [MapFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [MapFragment.newInstance] factory method to
+ * - Use the [MapFragment.newInstance] factory method to
  * create an instance of this mapFragment.
  *
  */
@@ -44,10 +50,14 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private var listener: OnFragmentInteractionListener? = null
     private val ITBA = LatLng(-34.603500, -58.367791)
     private var map: GoogleMap? = null
+    private lateinit var model: MapViewModel
+
 
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var floorSelectorFragment: FloorSelectorFragment
     private lateinit var statusIndicatorFragment: StatusIndicatorFragment
+
+    private lateinit var groundOverlay: GroundOverlay // TODO make this a map of floor number to GroundOverlay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +65,20 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        model = activity?.run {
+            ViewModelProviders.of(this).get(MapViewModel::class.java)
+        } ?: throw Exception("Invalid Activity")
+        model.selectedFloorNumber.observe(this, Observer<Int>{ floorNumber ->
+            Log.d(TAG, "Selected floor #$floorNumber! From MapFragment.")
+            Log.d(TAG, "Removing ground overlay...")
+            groundOverlay.remove()
+            Log.d(TAG, "Adding new ground overlay...")
+            groundOverlay = map!!.addGroundOverlay(GroundOverlayOptions()
+                    .position(ITBA, 100f)
+                    .image(BitmapDescriptorFactory.fromResource(floorPlanResourceId(floorNumber!!)))
+            )
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -106,9 +130,9 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
 //                }
 //            }, 20 * 1000)
 
-            map.addGroundOverlay(GroundOverlayOptions()
+            groundOverlay = map.addGroundOverlay(GroundOverlayOptions()
                     .position(ITBA, 100f)
-                    .image(BitmapDescriptorFactory.fromResource(R.drawable.test))
+                    .image(BitmapDescriptorFactory.fromResource(floorPlanResourceId(1)))
 //                    .anchor(0f, 0f)
             )
         } else {
@@ -206,5 +230,17 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false
+    }
+
+    /**
+     * Gets drawable resource ID given a floor number.
+     */
+    private fun floorPlanResourceId(floorNum: Int): Int {
+        return when (floorNum) {
+            1 -> R.drawable.plano1
+            2 -> R.drawable.plano2
+            3 -> R.drawable.plano3
+            else -> -1
+        }
     }
 }

@@ -1,4 +1,4 @@
-package itba.edu.ar.spi_android_app
+package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
 
 import android.content.Context
 import android.net.Uri
@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import itba.edu.ar.spi_android_app.R
 
 
 // TODO: Rename parameter arguments, choose names that match
