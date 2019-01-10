@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SPI-Android-App</string>
+    <string name="unknown_location_icon">Unknown location icon</string>
+    <string name="offline_indicator_icon">Offline indicator icon</string>
 </resources>
