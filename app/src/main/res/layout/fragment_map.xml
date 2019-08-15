@@ -3,7 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activities.mapActivity.fragments.MapFragment">
+    tools:context=".Activities.map.fragments.MapFragment">
+
+    <!-- Loading indicator -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/loading_circle"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
 
     <fragment
         class="com.google.android.gms.maps.SupportMapFragment"
@@ -13,7 +35,7 @@
         />
 
     <fragment
-        class="itba.edu.ar.spi_android_app.Activities.mapActivity.fragments.StatusIndicatorFragment"
+        class="ar.edu.itba.spi_android_app.Activities.map.fragments.StatusIndicatorFragment"
         android:id="@+id/statusIndicatorFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,14 +46,38 @@
         />
 
     <fragment
-        class="itba.edu.ar.spi_android_app.Activities.mapActivity.fragments.FloorSelectorFragment"
+        class="ar.edu.itba.spi_android_app.Activities.map.fragments.FloorSelectorFragment"
         android:id="@+id/floorSelectorFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/mapFragment"
         android:layout_alignBottom="@id/mapFragment"
         android:layout_marginEnd="15dp"
+        android:layout_marginBottom="90dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/mapFragment"
+        android:layout_alignBottom="@id/mapFragment"
+        android:layout_marginEnd="30dp"
         android:layout_marginBottom="15dp"
-        />
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@android:drawable/ic_menu_add" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_map_black_36dp" />
+    </FrameLayout>
 
 </RelativeLayout>

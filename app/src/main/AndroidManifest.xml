@@ -1,9 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="itba.edu.ar.spi_android_app">
+    package="ar.edu.itba.spi_android_app">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!-- To listen to network changes -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- To react to network changes. Glide also uses this permission -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- To cache images in SD card if possible -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
 
     <application
         android:allowBackup="true"
@@ -21,13 +27,19 @@
             android:value="@string/maps_api_key" />
 
         <activity
-            android:name="itba.edu.ar.spi_android_app.Activities.mapActivity.MapActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask">
+            android:name=".Activities.LoginActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".Activities.BuildingSelectorActivity"></activity>
+        <activity android:name=".Activities.map.MapActivity"></activity>
+        <activity android:name=".Activities.scan.ScanActivity"></activity>
     </application>
+
 </manifest>

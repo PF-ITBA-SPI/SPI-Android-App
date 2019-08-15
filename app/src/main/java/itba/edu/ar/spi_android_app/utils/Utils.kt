@@ -1,8 +1,7 @@
-package itba.edu.ar.spi_android_app.utils
+package ar.edu.itba.spi_android_app.utils
 
 import android.app.Activity
 import android.support.v4.widget.SwipeRefreshLayout
-import android.widget.Toast
 
 /**
  * Created by julianrodrigueznicastro on 28/11/2018.

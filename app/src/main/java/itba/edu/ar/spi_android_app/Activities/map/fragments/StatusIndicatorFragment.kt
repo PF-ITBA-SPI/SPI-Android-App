@@ -1,4 +1,4 @@
-package itba.edu.ar.spi_android_app.Activities.mapActivity.fragments
+package ar.edu.itba.spi_android_app.Activities.map.fragments
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -16,9 +16,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import itba.edu.ar.spi_android_app.Activities.mapActivity.MapViewModel
-import itba.edu.ar.spi_android_app.R
-import itba.edu.ar.spi_android_app.utils.TAG
+import ar.edu.itba.spi_android_app.R
+import ar.edu.itba.spi_android_app.utils.TAG
+import ar.edu.itba.spi_android_app.Activities.map.MapViewModel
 
 
 // TODO: Rename parameter arguments, choose names that match

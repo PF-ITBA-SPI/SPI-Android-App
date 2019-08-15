@@ -1,4 +1,4 @@
-package itba.edu.ar.spi_android_app.Activities.utils
+package ar.edu.itba.spi_android_app.Activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,10 +7,10 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import ar.edu.itba.spi_android_app.Activities.map.MapActivity
+import ar.edu.itba.spi_android_app.R
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
-import itba.edu.ar.spi_android_app.Activities.mapActivity.MapActivity
-import itba.edu.ar.spi_android_app.R
 import kotlinx.android.synthetic.main.single_fragment.*
 
 abstract class SingleFragmentActivity: AppCompatActivity() {

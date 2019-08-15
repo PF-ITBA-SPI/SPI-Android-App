@@ -1,4 +1,4 @@
-package itba.edu.ar.spi_android_app.utils
+package ar.edu.itba.spi_android_app.utils
 
 /**
  * Log tag prefix

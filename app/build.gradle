@@ -10,16 +10,16 @@ secrets.load(new FileInputStream(secretsFile)) // If this fails, you're missing 
 android {
     compileSdkVersion 27
     defaultConfig {
-        applicationId "itba.edu.ar.spi_android_app"
+        applicationId "ar.edu.itba.spi_android_app"
         minSdkVersion 18
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Add secrets from secrets file to build config
-        // buildConfigField("String", "maps_api_key", secrets['maps_api_key'])
         // Add secret as resource string (this was adapted from https://developers.google.com/maps/documentation/android-sdk/map-with-marker)
         resValue "string", "maps_api_key", secrets['maps_api_key']
+        resValue "string", "api_private_key", secrets['api_private_key']
     }
     buildTypes {
         release {
@@ -42,7 +42,6 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.google.android.gms:play-services-plus:16.0.0'
     testImplementation 'junit:junit:4.12'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -68,7 +67,10 @@ dependencies {
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
 
     //JSON parser adapter for retrofit
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
+    // Scalars parser (string, etc.)
+    implementation "com.squareup.retrofit2:converter-scalars:$retrofit_version"
 
     //Simpler requests
     implementation "com.squareup.okhttp3:okhttp:$okhttp3_version"
@@ -81,4 +83,15 @@ dependencies {
 
     // Google Maps
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
+
+    // JWTs
+    api 'io.jsonwebtoken:jjwt-api:0.10.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.10.5'
+    runtimeOnly('io.jsonwebtoken:jjwt-orgjson:0.10.5') {
+        exclude group: 'org.json', module: 'json' //provided by Android natively
+    }
+
+    // Glide for image management (download, caching, etc.)
+    implementation "com.github.bumptech.glide:glide:4.9.0"
+    kapt "com.github.bumptech.glide:compiler:4.9.0"
 }
