@@ -85,6 +85,7 @@ class ScanFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         val intentFilter = IntentFilter()
+
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         context?.registerReceiver(wifiScanReceiver, intentFilter)
     }

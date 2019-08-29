@@ -9,17 +9,10 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
+import ar.edu.itba.spi_android_app.Activities.map.MapActivity
 import ar.edu.itba.spi_android_app.R
-import ar.edu.itba.spi_android_app.api.ApiSingleton
-import ar.edu.itba.spi_android_app.api.clients.BuildingsClient
-import ar.edu.itba.spi_android_app.api.clients.PingClient
-import ar.edu.itba.spi_android_app.utils.TAG
-import com.bumptech.glide.Glide
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
 
 /**
@@ -33,60 +26,12 @@ class LoginActivity : AppCompatActivity() {
 
     // Use Disposable for API calls so we can cancel pending requests on destroy
     private var pingDisposable: Disposable? = null
-    private var buildingsDisposable: Disposable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        sign_in_button.setOnClickListener { attemptLogin() }
-
-        val retrofit = ApiSingleton.getInstance(this).defaultRetrofitInstance
-        val pingClient = retrofit.create(PingClient::class.java)
-        // API call, observed, with before-launch task https://medium.com/@elye.project/kotlin-and-retrofit-2-tutorial-with-working-codes-333a4422a890
-        pingDisposable = pingClient
-                .ping()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { Log.d(TAG, "Pinging!") }
-                .subscribe(
-                    { result -> Log.d(TAG, result) },
-                    { error -> Log.e(TAG, error.message) }
-                )
-
-        val buildingsClient = retrofit.create(BuildingsClient::class.java)
-        buildingsDisposable = buildingsClient
-                .list()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { Log.d(TAG, "GET /buildings") }
-                .subscribe(
-                        { result -> run {
-                            val a = Glide
-                                    .with(this)
-                                    .asBitmap()
-                                    .load(result[0].floors!![0].overlay!!.url)
-                                    .submit()
-                            Log.d(TAG, "Downloading image from ${result[0].floors!![0].overlay!!.url}")
-                            AsyncTask.execute {
-                                a.get()
-                                Log.d(TAG, "Image download complete!")
-                            }
-                            Log.d(TAG, result.map { b -> b.toString()}.reduce { acc: String, s: String -> "$acc,$s" })
-                            }
-                        },
-                        { error -> Log.e(TAG, error.message) }
-                )
+        attemptLogin()
     }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults) // TODO add own implementation or delete
-    }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -227,7 +172,7 @@ class LoginActivity : AppCompatActivity() {
             showProgress(false)
 
             if (success!!) {
-                startActivity(Intent(this@LoginActivity, BuildingSelectorActivity::class.java))
+                startActivity(Intent(this@LoginActivity, MapActivity::class.java))
             } else {
                 password.error = getString(R.string.error_incorrect_password)
                 password.requestFocus()

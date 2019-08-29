@@ -20,6 +20,6 @@ class MapActivity : SingleFragmentActivity(), MapFragment.OnFragmentInteractionL
     }
 
     override fun createFragment(): Fragment {
-        return MapFragment.newInstance(intent.getSerializableExtra(EXTRA_BUILDING) as Building)
+        return MapFragment()
     }
 }
