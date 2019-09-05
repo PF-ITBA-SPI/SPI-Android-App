@@ -2,6 +2,7 @@ package itba.edu.ar.spi_android_app.Activities.scan
 
 import android.Manifest
 import android.app.Activity
+import android.arch.lifecycle.MutableLiveData
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,7 +23,7 @@ class ScanService(private var activity: Activity) {
 
     private val MY_PERMISSIONS_REQUEST_CHANGE_WIFI_STATE = 42
     private lateinit var wifiManager: WifiManager
-    private var resultList: MutableList<ScanResult> = mutableListOf()
+    private var resultList = MutableLiveData<List<ScanResult>>()
 
 
     private val wifiScanReceiver = object : BroadcastReceiver() {
@@ -34,7 +35,7 @@ class ScanService(private var activity: Activity) {
                 wifiManager.scanResults.forEach { result ->
                     if(result != null) newResults.add(result)
                 }
-                resultList = newResults
+                resultList.value = newResults
             } else {
                 Log.d(TAG, "Scan Failed")
             }
@@ -47,7 +48,7 @@ class ScanService(private var activity: Activity) {
 
         val intentFilter = IntentFilter()
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
-        activity?.registerReceiver(wifiScanReceiver, intentFilter)
+        activity.registerReceiver(wifiScanReceiver, intentFilter)
     }
 
 
@@ -65,7 +66,7 @@ class ScanService(private var activity: Activity) {
         return false
     }
 
-    fun getLiveResults(): MutableList<ScanResult> { return resultList }
+    fun getLiveResults(): MutableLiveData<List<ScanResult>> { return resultList }
 
 
     fun startScanning() {

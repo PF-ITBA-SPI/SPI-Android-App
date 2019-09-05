@@ -3,6 +3,7 @@ package ar.edu.itba.spi_android_app.Activities.map.fragments
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -12,7 +13,6 @@ import android.net.Uri
 import android.net.wifi.ScanResult
 import android.os.AsyncTask
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
@@ -22,27 +22,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import ar.edu.itba.spi_android_app.Activities.map.EXTRA_BUILDING
 import ar.edu.itba.spi_android_app.Activities.map.MapViewModel
-import ar.edu.itba.spi_android_app.Activities.map.fragments.FloorSelectorFragment
-import ar.edu.itba.spi_android_app.Activities.map.fragments.StatusIndicatorFragment
-import ar.edu.itba.spi_android_app.Activities.scan.ScanActivity
 import ar.edu.itba.spi_android_app.R
 import ar.edu.itba.spi_android_app.api.ApiSingleton
 import ar.edu.itba.spi_android_app.api.clients.BuildingsClient
-import ar.edu.itba.spi_android_app.api.clients.SamplesClient
 import ar.edu.itba.spi_android_app.api.models.Building
 import ar.edu.itba.spi_android_app.api.models.Sample
 import ar.edu.itba.spi_android_app.utils.TAG
-import ar.edu.itba.spi_android_app.utils.buildingLatLng
 import ar.edu.itba.spi_android_app.utils.gMapsGroundOverlayOptions
-import ar.edu.itba.spi_android_app.utils.gMapsMarkerOptions
 import com.bumptech.glide.Glide
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.GroundOverlay
 import com.google.android.gms.maps.model.IndoorBuilding
 import com.google.android.gms.maps.model.Marker
@@ -51,6 +42,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import itba.edu.ar.spi_android_app.Activities.scan.ScanService
+import itba.edu.ar.spi_android_app.api.clients.LocationClient
+import ar.edu.itba.spi_android_app.utils.scanResultToFingerprint
 
 /**
  * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
@@ -72,6 +65,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private lateinit var model: MapViewModel
 
     private var buildingsDisposable: Disposable? = null
+    private var myLocationDisposable: Disposable? = null
 
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var floorSelectorFragment: FloorSelectorFragment
@@ -84,7 +78,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private val markers = HashMap<Int, MutableList<Marker>>()
 
     private lateinit var scanService: ScanService
-    private var liveScanResults = mutableListOf<ScanResult>()
+    private lateinit var liveScanResults: MutableLiveData<List<ScanResult>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,12 +95,13 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         } ?: throw Exception("Invalid Activity")
 
         val buildingsClient = ApiSingleton.getInstance(this.activity as AppCompatActivity).defaultRetrofitInstance.create(BuildingsClient::class.java)
+        val myLocationClient = ApiSingleton.getInstance(this.activity as AppCompatActivity).defaultRetrofitInstance.create(LocationClient::class.java)
 
         buildingsDisposable = buildingsClient
                 .list()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnSubscribe { Log.d(ar.edu.itba.spi_android_app.utils.TAG, "GET /buildings") }
+                .doOnSubscribe { Log.d(TAG, "GET /buildings") }
                 .subscribe(
                         { result ->
                             run {
@@ -114,8 +109,22 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                 scanService.startScanning()
                             }
                         },
-                        { error -> Log.e(ar.edu.itba.spi_android_app.utils.TAG, error.message) }
+                        { error -> Log.e(TAG, error.message) }
                 )
+
+        liveScanResults.observe(this, Observer<List<ScanResult>> { newResults ->
+            if (newResults != null && newResults.isNotEmpty()) {
+                val fingerprint = scanResultToFingerprint(newResults)
+                myLocationDisposable = myLocationClient
+                        .queryLocation(fingerprint)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe { Log.d(TAG, "Querying location, scan results: $fingerprint") }
+                        .subscribe(
+                                { result -> Log.i(TAG, "LOCATION RESULT: $result")},
+                                { error -> Log.e(TAG, error.message) })
+            }
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
