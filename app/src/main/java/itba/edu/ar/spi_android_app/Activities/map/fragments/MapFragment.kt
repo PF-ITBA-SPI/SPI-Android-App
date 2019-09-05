@@ -121,6 +121,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                         .observeOn(AndroidSchedulers.mainThread())
                         .doOnSubscribe { Log.d(TAG, "Querying location, scan results: $fingerprint") }
                         .subscribe(
+                                // TODO update user's location building and floor from result
                                 { result -> Log.i(TAG, "LOCATION RESULT: $result")},
                                 { error -> Log.e(TAG, error.message) })
             }
