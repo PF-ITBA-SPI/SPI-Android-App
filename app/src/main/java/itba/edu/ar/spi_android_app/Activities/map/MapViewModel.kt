@@ -4,6 +4,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import ar.edu.itba.spi_android_app.api.models.Building
 import ar.edu.itba.spi_android_app.api.models.Floor
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * ViewModel shared between map view and floor selector fragments, used to communicate between them.
@@ -14,6 +15,7 @@ class MapViewModel : ViewModel() {
     var currentBuilding = MutableLiveData<Building>()
     var floors = MutableLiveData<List<Floor>>()
     var selectedFloorNumber = MutableLiveData<Int>()
+    var location = MutableLiveData<LatLng>()
     var isOffline = MutableLiveData<Boolean>().apply { value = false }
     var isLocationUnknown = MutableLiveData<Boolean>().apply { value = false }
     var isChangingOverlay = MutableLiveData<Boolean>().apply { value = false }
