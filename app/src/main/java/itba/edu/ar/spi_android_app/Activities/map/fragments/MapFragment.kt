@@ -31,12 +31,6 @@ import ar.edu.itba.spi_android_app.api.models.Sample
 import ar.edu.itba.spi_android_app.utils.TAG
 import ar.edu.itba.spi_android_app.utils.gMapsGroundOverlayOptions
 import com.bumptech.glide.Glide
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.GroundOverlay
-import com.google.android.gms.maps.model.IndoorBuilding
-import com.google.android.gms.maps.model.Marker
 import com.orhanobut.logger.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -44,7 +38,8 @@ import io.reactivex.schedulers.Schedulers
 import itba.edu.ar.spi_android_app.Activities.scan.ScanService
 import itba.edu.ar.spi_android_app.api.clients.LocationClient
 import ar.edu.itba.spi_android_app.utils.scanResultToFingerprint
-import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 
 /**
  * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
@@ -76,7 +71,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private var activeGroundOverlay: GroundOverlay? = null
 
     private var samples: MutableCollection<Sample> = mutableListOf()
-    private val markers = HashMap<Int, MutableList<Marker>>()
+    private var marker: Marker? = null
 
     private lateinit var scanService: ScanService
     private lateinit var liveScanResults: MutableLiveData<List<ScanResult>>
@@ -140,11 +135,11 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
 
                                     // Building
                                     if (result.buildingId != null && model.buildings.value?.isEmpty() == false) {
-                                        val oldV = model.currentBuilding.value
+                                        val oldV = model.locatedBuilding.value
                                         val newV = model.buildings.value!!.find { b -> b._id == result.buildingId }
                                         if (newV != oldV) {
-                                            model.currentBuilding.value = newV
-                                            Log.d(TAG, "Updated current building from $oldV to $newV")
+                                            model.locatedBuilding.value = newV
+                                            Log.d(TAG, "Updated located building from $oldV to $newV")
                                         }
                                     } else {
                                         Log.d(TAG, "Building ID not returned, skipping update")
@@ -154,14 +149,14 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                     if (result.floorId != null) {
                                         if (model.buildings.value?.isEmpty() == true) {
                                             Log.w(TAG, "Floor ID returned in location result but model.buildings is null or empty, skipping update")
-                                        } else if (model.currentBuilding.value == null) {
-                                            Log.w(TAG, "Floor ID returned in location result but model.currentBuilding is null, skipping update")
+                                        } else if (model.locatedBuilding.value == null) {
+                                            Log.w(TAG, "Floor ID returned in location result but model.locatedBuilding is null, skipping update")
                                         } else {
-                                            val oldV = model.selectedFloorNumber.value
-                                            val newV = model.currentBuilding.value!!.floors!!.find { f -> f._id == result.floorId }?.number
+                                            val oldV = model.locatedFloorNumber.value
+                                            val newV = model.locatedBuilding.value!!.floors!!.find { f -> f._id == result.floorId }?.number
                                             if (newV != oldV) {
-                                                model.selectedFloorNumber.value = newV
-                                                Log.d(TAG, "Updated selected floor number from $oldV to $newV")
+                                                model.locatedFloorNumber.value = newV
+                                                Log.d(TAG, "Updated located floor number from $oldV to $newV")
                                             }
                                         }
                                     } else {
@@ -169,6 +164,14 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                     }
                                 },
                                 { error -> Log.e(TAG, error.message) })
+            }
+        })
+
+        model.location.observe(this, Observer<LatLng> { newLocation ->
+            if (newLocation != null) {
+                marker?.remove()
+                marker = map!!.addMarker(MarkerOptions().position(newLocation))
+                map!!.moveCamera(CameraUpdateFactory.newCameraPosition((CameraPosition(newLocation, 19f, 0f, 0f))))
             }
         })
     }

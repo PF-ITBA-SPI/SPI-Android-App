@@ -12,11 +12,15 @@ import com.google.android.gms.maps.model.LatLng
  */
 class MapViewModel : ViewModel() {
     var buildings = MutableLiveData<List<Building>>()
-    var currentBuilding = MutableLiveData<Building>()
     var floors = MutableLiveData<List<Floor>>()
     var selectedFloorNumber = MutableLiveData<Int>()
-    var location = MutableLiveData<LatLng>()
     var isOffline = MutableLiveData<Boolean>().apply { value = false }
     var isLocationUnknown = MutableLiveData<Boolean>().apply { value = false }
     var isChangingOverlay = MutableLiveData<Boolean>().apply { value = false }
+
+    // Values returned from location algorithm
+    var locatedBuilding = MutableLiveData<Building>()
+    var locatedFloorNumber = MutableLiveData<Int>()
+    var location = MutableLiveData<LatLng>()
+
 }
