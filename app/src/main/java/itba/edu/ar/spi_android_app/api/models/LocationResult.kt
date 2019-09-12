@@ -17,7 +17,7 @@ class LocationResult: Serializable {
     var longitude: Double? = null
 
     override fun toString(): String {
-        return "LocationResult @ ($latitude, $longitude) on floor $floorId of building $buildingId"
+        return "LocationResult @ ($latitude, $longitude) on floor ${floorId ?: "?"} of building ${buildingId ?: "?"}"
     }
 }
 
