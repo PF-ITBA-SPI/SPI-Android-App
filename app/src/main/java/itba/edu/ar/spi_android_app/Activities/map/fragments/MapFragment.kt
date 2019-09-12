@@ -105,10 +105,8 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                 .doOnSubscribe { Log.d(TAG, "GET /buildings") }
                 .subscribe(
                         { result ->
-                            run {
-                                model.buildings.value = result
-                                scanService.startScanning()
-                            }
+                            model.buildings.value = result
+                            scanService.startScanning()
                         },
                         { error -> Log.e(TAG, error.message) }
                 )
@@ -154,7 +152,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
 
                                     // Floor
                                     if (result.floorId != null) {
-                                        if (model.buildings.value?.isEmpty() == false) {
+                                        if (model.buildings.value?.isEmpty() == true) {
                                             Log.w(TAG, "Floor ID returned in location result but model.buildings is null or empty, skipping update")
                                         } else if (model.currentBuilding.value == null) {
                                             Log.w(TAG, "Floor ID returned in location result but model.currentBuilding is null, skipping update")
@@ -163,7 +161,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                             val newV = model.currentBuilding.value!!.floors!!.find { f -> f._id == result.floorId }?.number
                                             if (newV != oldV) {
                                                 model.selectedFloorNumber.value = newV
-                                                Log.d(TAG, "Updated selected floor number to $newV")
+                                                Log.d(TAG, "Updated selected floor number from $oldV to $newV")
                                             }
                                         }
                                     } else {
