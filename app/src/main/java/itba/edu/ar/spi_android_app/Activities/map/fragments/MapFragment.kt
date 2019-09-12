@@ -44,6 +44,7 @@ import io.reactivex.schedulers.Schedulers
 import itba.edu.ar.spi_android_app.Activities.scan.ScanService
 import itba.edu.ar.spi_android_app.api.clients.LocationClient
 import ar.edu.itba.spi_android_app.utils.scanResultToFingerprint
+import com.google.android.gms.maps.model.LatLng
 
 /**
  * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
@@ -122,7 +123,53 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                         .doOnSubscribe { Log.d(TAG, "Querying location, scan results: $fingerprint") }
                         .subscribe(
                                 // TODO update user's location building and floor from result
-                                { result -> Log.i(TAG, "LOCATION RESULT: $result")},
+                                { result ->
+                                    Log.d(TAG, "LOCATION RESULT: $result")
+                                    Toast.makeText(activity, "$result", Toast.LENGTH_LONG).show()
+                                    // Location
+                                    if (result.latitude != null && result.longitude != null) {
+                                        val oldV = model.location.value
+                                        val newV = LatLng(result.latitude!!, result.longitude!!)
+                                        if (newV != oldV) {
+                                            model.location.value = newV
+                                            Log.d(TAG, "Updated location from $oldV to $newV")
+                                        } else {
+                                            Log.d(TAG, "Location unchanged, skipping update")
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Latitude and/or longitude not returned, skipping update")
+                                    }
+
+                                    // Building
+                                    if (result.buildingId != null && model.buildings.value?.isEmpty() == false) {
+                                        val oldV = model.currentBuilding.value
+                                        val newV = model.buildings.value!!.find { b -> b._id == result.buildingId }
+                                        if (newV != oldV) {
+                                            model.currentBuilding.value = newV
+                                            Log.d(TAG, "Updated current building from $oldV to $newV")
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Building ID not returned, skipping update")
+                                    }
+
+                                    // Floor
+                                    if (result.floorId != null) {
+                                        if (model.buildings.value?.isEmpty() == false) {
+                                            Log.w(TAG, "Floor ID returned in location result but model.buildings is null or empty, skipping update")
+                                        } else if (model.currentBuilding.value == null) {
+                                            Log.w(TAG, "Floor ID returned in location result but model.currentBuilding is null, skipping update")
+                                        } else {
+                                            val oldV = model.selectedFloorNumber.value
+                                            val newV = model.currentBuilding.value!!.floors!!.find { f -> f._id == result.floorId }?.number
+                                            if (newV != oldV) {
+                                                model.selectedFloorNumber.value = newV
+                                                Log.d(TAG, "Updated selected floor number to $newV")
+                                            }
+                                        }
+                                    } else {
+                                        Log.w(TAG, "Floor ID not returned, skipping update")
+                                    }
+                                },
                                 { error -> Log.e(TAG, error.message) })
             }
         })
