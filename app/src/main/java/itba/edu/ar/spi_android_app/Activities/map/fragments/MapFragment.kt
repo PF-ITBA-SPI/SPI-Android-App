@@ -13,6 +13,7 @@ import android.net.Uri
 import android.net.wifi.ScanResult
 import android.os.AsyncTask
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
@@ -30,16 +31,19 @@ import ar.edu.itba.spi_android_app.api.models.Building
 import ar.edu.itba.spi_android_app.api.models.Sample
 import ar.edu.itba.spi_android_app.utils.TAG
 import ar.edu.itba.spi_android_app.utils.gMapsGroundOverlayOptions
+import ar.edu.itba.spi_android_app.utils.scanResultToFingerprint
 import com.bumptech.glide.Glide
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.*
 import com.orhanobut.logger.Logger
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import itba.edu.ar.spi_android_app.Activities.scan.ScanService
 import itba.edu.ar.spi_android_app.api.clients.LocationClient
-import ar.edu.itba.spi_android_app.utils.scanResultToFingerprint
-import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.*
 
 /**
  * Main positioning fragment.  Includes a Google Maps fragment, a [FloorSelectorFragment] to
@@ -117,8 +121,6 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                         .subscribe(
                                 // TODO update user's location building and floor from result
                                 { result ->
-                                    Log.d(TAG, "LOCATION RESULT: $result")
-                                    Toast.makeText(activity, "$result", Toast.LENGTH_LONG).show()
                                     // Location
                                     if (result.latitude != null && result.longitude != null) {
                                         val oldV = model.location.value
@@ -162,6 +164,11 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                     } else {
                                         Log.w(TAG, "Floor ID not returned, skipping update")
                                     }
+                                    Log.d(TAG, "LOCATION RESULT: $result")
+                                    val locationStr = if (model.location.value == null) "?" else "(${model.location.value!!.latitude}, ${model.location.value!!.longitude})"
+                                    val buildingStr = model.locatedBuilding.value?.name ?: "?"
+                                    val floorStr = if (model.locatedFloorNumber.value == null) "?" else model.locatedBuilding.value?.getFloorNumber(model.locatedFloorNumber.value!!)?.name ?: "?"
+                                    Snackbar.make(view!!, "Located at $locationStr on floor $floorStr of building $buildingStr", Snackbar.LENGTH_INDEFINITE).show()
                                 },
                                 { error -> Log.e(TAG, error.message) })
             }
