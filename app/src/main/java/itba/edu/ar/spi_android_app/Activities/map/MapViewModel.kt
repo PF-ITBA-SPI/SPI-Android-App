@@ -20,7 +20,7 @@ class MapViewModel : ViewModel() {
 
     // Values returned from location algorithm
     var locatedBuilding = MutableLiveData<Building>()
-    var locatedFloorNumber = MutableLiveData<Int>()
+    var locatedFloor = MutableLiveData<Floor>()
     var location = MutableLiveData<LatLng>()
 
 }

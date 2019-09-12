@@ -28,6 +28,7 @@ import ar.edu.itba.spi_android_app.R
 import ar.edu.itba.spi_android_app.api.ApiSingleton
 import ar.edu.itba.spi_android_app.api.clients.BuildingsClient
 import ar.edu.itba.spi_android_app.api.models.Building
+import ar.edu.itba.spi_android_app.api.models.Floor
 import ar.edu.itba.spi_android_app.api.models.Sample
 import ar.edu.itba.spi_android_app.utils.TAG
 import ar.edu.itba.spi_android_app.utils.gMapsGroundOverlayOptions
@@ -71,7 +72,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
     private lateinit var floorSelectorFragment: FloorSelectorFragment
     private lateinit var statusIndicatorFragment: StatusIndicatorFragment
 
-    private val groundOverlays = HashMap<Int, GroundOverlay>()
+    private val groundOverlays = HashMap<String, GroundOverlay>()
     private var activeGroundOverlay: GroundOverlay? = null
 
     private var samples: MutableCollection<Sample> = mutableListOf()
@@ -154,11 +155,11 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                         } else if (model.locatedBuilding.value == null) {
                                             Log.w(TAG, "Floor ID returned in location result but model.locatedBuilding is null, skipping update")
                                         } else {
-                                            val oldV = model.locatedFloorNumber.value
-                                            val newV = model.locatedBuilding.value!!.floors!!.find { f -> f._id == result.floorId }?.number
+                                            val oldV = model.locatedFloor.value
+                                            val newV = model.locatedBuilding.value!!.floors!!.find { f -> f._id == result.floorId }
                                             if (newV != oldV) {
-                                                model.locatedFloorNumber.value = newV
-                                                Log.d(TAG, "Updated located floor number from $oldV to $newV")
+                                                model.locatedFloor.value = newV
+                                                Log.d(TAG, "Updated located floor from $oldV to $newV")
                                             }
                                         }
                                     } else {
@@ -167,8 +168,10 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                     Log.d(TAG, "LOCATION RESULT: $result")
                                     val locationStr = if (model.location.value == null) "?" else "(${model.location.value!!.latitude}, ${model.location.value!!.longitude})"
                                     val buildingStr = model.locatedBuilding.value?.name ?: "?"
-                                    val floorStr = if (model.locatedFloorNumber.value == null) "?" else model.locatedBuilding.value?.getFloorNumber(model.locatedFloorNumber.value!!)?.name ?: "?"
+                                    val floorStr = model.locatedFloor.value?.name ?: "?"
                                     Snackbar.make(view!!, "Located at $locationStr on floor $floorStr of building $buildingStr", Snackbar.LENGTH_INDEFINITE).show()
+
+                                    switchOverlay(model.locatedBuilding.value!!, model.locatedFloor.value!!)
                                 },
                                 { error -> Log.e(TAG, error.message) })
             }
@@ -264,34 +267,34 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
      * Downloads the overlay image in the background if necessary, and creates Maps' Overlay when
      * ready.
      */
-    private fun switchOverlay(building: Building, floorNumber: Int) {
+    private fun switchOverlay(building: Building, floor: Floor) {
         if (model.isChangingOverlay.value!!) {
             throw IllegalStateException("Already changing overlays, can't change overlays again")
         }
         model.isChangingOverlay.value = true
         Log.d(TAG, "Removing ground overlay...")
         activeGroundOverlay?.isVisible = false
-        if (!groundOverlays.containsKey(floorNumber)) {
-            Log.d(TAG, "Downloading ground overlay for floor #$floorNumber of ${building.name}...")
+        if (!groundOverlays.containsKey(floor._id)) {
+            Log.d(TAG, "Downloading ground overlay for floor #$floor of ${building.name}...")
             val downloadFuture = Glide
                     .with(this)
                     .asBitmap()
-                    .load(building.getFloorNumber(floorNumber)!!.overlay!!.url)
+                    .load(floor.overlay!!.url)
                     .submit()
             AsyncTask.execute {
                 val overlayBitmap = downloadFuture.get()
                 Log.d(TAG, "Overlay download complete!")
                 Log.d(TAG, "Adding new ground overlay...")
-                val overlayOptions = gMapsGroundOverlayOptions(building.getOverlayNumber(floorNumber), overlayBitmap)
+                val overlayOptions = gMapsGroundOverlayOptions(building.getOverlayNumber(floor.number!!), overlayBitmap)
                 activity?.runOnUiThread {
                     activeGroundOverlay = map!!.addGroundOverlay(overlayOptions)
-                    groundOverlays[floorNumber] = activeGroundOverlay!!
+                    groundOverlays[floor._id!!] = activeGroundOverlay!!
                     model.isChangingOverlay.value = false
                 }
             }
         } else {
             Log.d(TAG, "Adding cached ground overlay")
-            activeGroundOverlay = groundOverlays[floorNumber]
+            activeGroundOverlay = groundOverlays[floor._id]
             activeGroundOverlay!!.isVisible = true
             model.isChangingOverlay.value = false
         }
