@@ -39,7 +39,6 @@
 
         <activity android:name=".Activities.BuildingSelectorActivity"></activity>
         <activity android:name=".Activities.map.MapActivity"></activity>
-        <activity android:name=".Activities.scan.ScanActivity"></activity>
     </application>
 
 </manifest>
