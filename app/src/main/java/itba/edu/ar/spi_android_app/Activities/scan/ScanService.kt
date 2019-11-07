@@ -74,8 +74,9 @@ class ScanService(private var activity: Activity) {
             Log.d(TAG, "START SCAN")
             wifiManager.startScan()
         }
+        val timeBetweenScans : Long = if (android.os.Build.VERSION.SDK_INT >= 28) 30000 else 5000
         Handler().postDelayed({
             startScanning()
-        }, 30000)
+        },  timeBetweenScans)
     }
 }
