@@ -1,7 +1,7 @@
 package ar.edu.itba.spi_android_app.Activities.map
 
 import android.net.Uri
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.util.Log
 import ar.edu.itba.spi_android_app.Activities.SingleFragmentActivity
 import ar.edu.itba.spi_android_app.Activities.map.fragments.MapFragment

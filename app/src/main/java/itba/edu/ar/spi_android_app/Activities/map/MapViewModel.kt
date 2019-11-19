@@ -1,7 +1,7 @@
 package ar.edu.itba.spi_android_app.Activities.map
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import ar.edu.itba.spi_android_app.api.models.Building
 import ar.edu.itba.spi_android_app.api.models.Floor
 import com.google.android.gms.maps.model.LatLng

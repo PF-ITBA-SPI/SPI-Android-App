@@ -2,7 +2,7 @@ package ar.edu.itba.spi_android_app.utils
 
 import android.app.Activity
 import android.net.wifi.ScanResult
-import android.support.v4.widget.SwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 fun SwipeRefreshLayout.stopUI(activity: Activity) = activity.runOnUiThread { this.isRefreshing = false }
 
