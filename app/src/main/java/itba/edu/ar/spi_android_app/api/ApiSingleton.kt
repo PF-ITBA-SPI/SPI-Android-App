@@ -30,7 +30,7 @@ class ApiSingleton private constructor(context: Context) {
                 .replace("-----BEGIN RSA PRIVATE KEY-----", "") // Trim beginning comment
                 .replace("-----END RSA PRIVATE KEY-----", "")   // Trim end comment
         val keySpecPKCS8 = PKCS8EncodedKeySpec(Base64.decode( jwtString, Base64.DEFAULT))
-        val privateKey = KeyFactory.getInstance("RSA").generatePrivate(keySpecPKCS8)
+        val privateKey = KeyFactory.getInstance("RSA", "BC").generatePrivate(keySpecPKCS8)
 
         jwt = Jwts.builder()
                 .signWith(privateKey)
