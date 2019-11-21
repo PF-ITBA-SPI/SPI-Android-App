@@ -12,6 +12,7 @@ import android.location.Location
 import android.net.Uri
 import android.net.wifi.ScanResult
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.app.ActivityCompat
@@ -276,10 +277,16 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         activeGroundOverlay?.isVisible = false
         if (!groundOverlays.containsKey(floor._id)) {
             Log.d(TAG, "Downloading ground overlay for floor #$floor of ${building.name}...")
+            var overlayUrl = floor.overlay!!.url!!
+            // Use a half-resolution image for older Android because big images go over memory limit
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                overlayUrl = overlayUrl.replace(Regex("/upload/v(\\d+)/"), "/upload/w_0.5,c_scale/v$1/");
+            }
+
             val downloadFuture = Glide
                     .with(this)
                     .asBitmap()
-                    .load(floor.overlay!!.url)
+                    .load(overlayUrl)
                     .submit()
             AsyncTask.execute {
                 val overlayBitmap = downloadFuture.get()
