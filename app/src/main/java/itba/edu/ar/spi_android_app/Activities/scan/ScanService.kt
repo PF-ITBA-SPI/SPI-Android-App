@@ -24,6 +24,7 @@ class ScanService(private var activity: Activity) {
     private val MY_PERMISSIONS_REQUEST_CHANGE_WIFI_STATE = 42
     private lateinit var wifiManager: WifiManager
     private var resultList = MutableLiveData<List<ScanResult>>()
+    private val WIFI_SCAN_FREQUENCY: Long = if (android.os.Build.VERSION.SDK_INT >= 28) 30000 else 10000
 
 
     private val wifiScanReceiver = object : BroadcastReceiver() {
@@ -74,9 +75,8 @@ class ScanService(private var activity: Activity) {
             Log.d(TAG, "START SCAN")
             wifiManager.startScan()
         }
-        val timeBetweenScans : Long = if (android.os.Build.VERSION.SDK_INT >= 28) 30000 else 5000
         Handler().postDelayed({
             startScanning()
-        },  timeBetweenScans)
+        },  WIFI_SCAN_FREQUENCY)
     }
 }
