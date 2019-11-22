@@ -29,7 +29,7 @@ class ScanService(private var activity: Activity) {
 
     private val wifiScanReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false)
+            val success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false) || !wifiManager.scanResults.isNullOrEmpty()
             if (success) {
                 Log.d(TAG, wifiManager.scanResults.toString())
                 val newResults = ArrayList<ScanResult>()
