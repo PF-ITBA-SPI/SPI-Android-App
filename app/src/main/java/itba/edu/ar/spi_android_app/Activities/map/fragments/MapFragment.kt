@@ -172,9 +172,12 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
                                     val floorStr = model.locatedFloor.value?.name ?: "?"
                                     Snackbar.make(view!!, "Located at $locationStr on floor $floorStr of building $buildingStr", Snackbar.LENGTH_INDEFINITE).show()
 
+                                    // Show location unknown icon if appropriate
+                                    model.isLocationUnknown.value = !result.isComplete()
+
                                     switchOverlay(model.locatedBuilding.value!!, model.locatedFloor.value!!)
                                 },
-                                { error -> Log.e(TAG, error.message) })
+                                { error -> Log.e(TAG, error?.message ?: "Unknown error getting location") })
             }
         })
 

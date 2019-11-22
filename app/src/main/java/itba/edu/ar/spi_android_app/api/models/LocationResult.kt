@@ -16,6 +16,10 @@ class LocationResult: Serializable {
     @SerializedName("longitude")
     var longitude: Double? = null
 
+    fun isComplete(): Boolean {
+        return buildingId != null && floorId != null && latitude != null && longitude != null;
+    }
+
     override fun toString(): String {
         return "LocationResult @ ($latitude, $longitude) on floor ${floorId ?: "?"} of building ${buildingId ?: "?"}"
     }
