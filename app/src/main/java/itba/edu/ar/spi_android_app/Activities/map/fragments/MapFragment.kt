@@ -86,7 +86,7 @@ class MapFragment : Fragment(), GoogleMap.OnMyLocationButtonClickListener, Googl
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Started map super-fragment")
 
-        if(activity != null ){
+        if (activity != null) {
             scanService = ScanService(activity as Activity)
             liveScanResults = scanService.getLiveResults()
         }
